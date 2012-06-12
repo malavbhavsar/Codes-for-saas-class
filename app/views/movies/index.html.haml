@@ -7,9 +7,8 @@
       Include:
       - @all_ratings.each do |rating|
         = rating
-        = print [rating,"my name is malav " , params[:ratings]].join
-        = check_box_tag("ratings[#{rating}]", 1, if (!params.nil? and !params[:ratings].nil? and params[:ratings].has_key?("ratings[#{rating}]")) then true else false end)
-      = submit_tag 'Refresh'
+        = check_box_tag("ratings[#{rating}]", 1, if (!params.nil? and !params[:ratings].nil? and params[:ratings].has_key?(rating)) then true else false end)
+      = submit_tag 'Refresh', :id=> 'ratings_submit'
     %tr
       %th{ :class => if(params[:order_by] == "title") then "hilite" end}
         = link_to "Movie Title", if !params.nil? and !params[:ratings].nil? then movies_path(:order_by => "title", :ratings => params[:ratings] ) else movies_path(:order_by => "title") end, :id => "title_header"
