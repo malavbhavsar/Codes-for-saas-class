@@ -7,6 +7,18 @@ class MoviesController < ApplicationController
   end
 
   def index
+    if !params.has_key?(:ratings) and !params.has_key?(:order_by)
+      if(session.has_key?(:ratings) or session.has_key?(:order_by)) then
+        redirect_params = {}
+        [:ratings, :order_by].each do |session_key|
+          redirect_params.merge!({ session_key => session[session_key]  }) unless session[session_key].nil?
+          session.delete(session_key)
+        end
+        flash.keep
+        redirect_to movies_path(redirect_params)
+        return
+      end
+    end
     @all_ratings = Movie.my_all_rate
     if params[:order_by] == nil
       @movies = if !params[:ratings].nil? then Movie.where(:rating => params[:ratings].keys) else Movie.all end
@@ -29,12 +41,7 @@ class MoviesController < ApplicationController
   def create
     @movie = Movie.create!(params[:movie])
     flash[:notice] = "#{@movie.title} was successfully created."
-    redirect_params = {}
-    [:ratings, :order_by].each do |session_key|
-        redirect_params.merge!({ session_key => session[session_key]  }) unless session[session_key].nil?
-    end
-    redirect_to movies_path(redirect_params)
-
+    redirect_to movies_path
   end
 
   def edit
@@ -45,24 +52,14 @@ class MoviesController < ApplicationController
     @movie = Movie.find params[:id]
     @movie.update_attributes!(params[:movie])
     flash[:notice] = "#{@movie.title} was successfully updated."
-    redirect_params = {}
-    [:ratings, :order_by].each do |session_key|
-        redirect_params.merge!({ session_key => session[session_key]  }) unless session[session_key].nil?
-    end
-    redirect_to movies_path(redirect_params)
-
+    redirect_to movies_path
   end
 
   def destroy
     @movie = Movie.find(params[:id])
     @movie.destroy
     flash[:notice] = "Movie '#{@movie.title}' deleted."
-    redirect_params = {}
-    [:ratings, :order_by].each do |session_key|
-        redirect_params.merge!({ session_key => session[session_key]  }) unless session[session_key].nil?
-    end
-    redirect_to movies_path(redirect_params)
-
+    redirect_to movies_path
   end
 
 end
