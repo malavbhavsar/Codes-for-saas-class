@@ -19,6 +19,7 @@ class MoviesController < ApplicationController
       end
       @movies = if !params[:ratings].nil? then Movie.find_by_sql(["SELECT * FROM movies WHERE movies.rating IN ","(",rate[0,rate.length-1],")"," ORDER BY ",params[:order_by]].join ) else Movie.all(:order=>params[:order_by]) end
     end
+    session.merge!(params)
   end
 
   def new
@@ -28,7 +29,12 @@ class MoviesController < ApplicationController
   def create
     @movie = Movie.create!(params[:movie])
     flash[:notice] = "#{@movie.title} was successfully created."
-    redirect_to movies_path
+    redirect_params = {}
+    [:ratings, :order_by].each do |session_key|
+        redirect_params.merge!({ session_key => session[session_key]  }) unless session[session_key].nil?
+    end
+    redirect_to movies_path(redirect_params)
+
   end
 
   def edit
@@ -39,14 +45,24 @@ class MoviesController < ApplicationController
     @movie = Movie.find params[:id]
     @movie.update_attributes!(params[:movie])
     flash[:notice] = "#{@movie.title} was successfully updated."
-    redirect_to movie_path(@movie)
+    redirect_params = {}
+    [:ratings, :order_by].each do |session_key|
+        redirect_params.merge!({ session_key => session[session_key]  }) unless session[session_key].nil?
+    end
+    redirect_to movies_path(redirect_params)
+
   end
 
   def destroy
     @movie = Movie.find(params[:id])
     @movie.destroy
     flash[:notice] = "Movie '#{@movie.title}' deleted."
-    redirect_to movies_path
+    redirect_params = {}
+    [:ratings, :order_by].each do |session_key|
+        redirect_params.merge!({ session_key => session[session_key]  }) unless session[session_key].nil?
+    end
+    redirect_to movies_path(redirect_params)
+
   end
 
 end
