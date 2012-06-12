@@ -7,10 +7,17 @@ class MoviesController < ApplicationController
   end
 
   def index
+    @all_ratings = Movie.my_all_rate
     if params[:order_by] == nil
-      @movies = Movie.all
+      @movies = if !params[:ratings].nil? then Movie.where(:rating => params[:ratings].keys) else Movie.all end
     else
-      @movies = Movie.order(params[:order_by])
+      rate  = ""
+      if !params[:ratings].nil? then
+        params[:ratings].each do |x|
+         rate += "'"+x[0]+"',"
+        end
+      end
+      @movies = if !params[:ratings].nil? then Movie.find_by_sql(["SELECT * FROM movies WHERE movies.rating IN ","(",rate[0,rate.length-1],")"," ORDER BY ",params[:order_by]].join ) else Movie.all(:order=>params[:order_by]) end
     end
   end
 

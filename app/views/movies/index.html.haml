@@ -3,12 +3,19 @@
 
 %table#movies
   %thead
+    = form_tag movies_path(:order_by => params[:order_by]), :method => :get do
+      Include:
+      - @all_ratings.each do |rating|
+        = rating
+        = print [rating,"my name is malav " , params[:ratings]].join
+        = check_box_tag("ratings[#{rating}]", 1, if (!params.nil? and !params[:ratings].nil? and params[:ratings].has_key?("ratings[#{rating}]")) then true else false end)
+      = submit_tag 'Refresh'
     %tr
       %th{ :class => if(params[:order_by] == "title") then "hilite" end}
-        = link_to "Movie Title", movies_path(:order_by => "title") , :id => "title_header"
+        = link_to "Movie Title", if !params.nil? and !params[:ratings].nil? then movies_path(:order_by => "title", :ratings => params[:ratings] ) else movies_path(:order_by => "title") end, :id => "title_header"
       %th Rating
       %th{ :class => if(params[:order_by] == "release_date") then "hilite" end}
-        = link_to "Release Date", movies_path(:order_by => "release_date") , :id => "release_date_header"
+        = link_to "Release Date", if !params.nil? and !params[:ratings].nil? then movies_path(:order_by => "release_date", :ratings => params[:ratings] ) else movies_path(:order_by => "release_date") end, :id => "release_date_header"
       %th More Info
   %tbody
     - @movies.each do |movie|
