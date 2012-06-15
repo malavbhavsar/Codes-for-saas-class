@@ -14,7 +14,14 @@ end
 Then /I should see "(.*)" before "(.*)"/ do |e1, e2|
   #  ensure that that e1 occurs before e2.
   #  page.content  is the entire content of the page as a string.
-  flunk "Unimplemented"
+     movies_from_page = page.all("table#movies tbody#movielist tr td[0]")
+     i1 = movies_from_page.rindex(e1)
+     i2 = movies_from_page.rindex(e2)
+     if i1.nil? or i2.nil? then
+        false
+     else
+        i1.should be < i2
+     end
 end
 
 # Make it easier to express checking or unchecking several boxes at once
