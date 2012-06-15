@@ -4,8 +4,8 @@ Given /the following movies exist/ do |movies_table|
   movies_table.hashes.each do |movie|
     # each returned element will be a hash whose key is the table header.
     # you should arrange to add that movie to the database here.
+    Movie.create!(movie)
   end
-  flunk "Unimplemented"
 end
 
 # Make sure that one string (regexp) occurs before or after another one
@@ -25,4 +25,30 @@ When /I (un)?check the following ratings: (.*)/ do |uncheck, rating_list|
   # HINT: use String#split to split up the rating_list, then
   #   iterate over the ratings and reuse the "When I check..." or
   #   "When I uncheck..." steps in lines 89-95 of web_steps.rb
+  rating_list.split(',').each do |rating|
+    if uncheck then
+      step 'uncheck '+'"'+'ratings_'+rating+'"'
+    else
+      step 'check '+'"'+'ratings_'+rating+'"'
+    end
+  end
+end
+
+Then /movies with these ratings are (in)?visible: (.*)/ do |invisible, rating_list|
+  ratings_from_page = page.all("table#movies tbody#movielist tr td[1]")
+  if invisible then
+    (ratings_from_page & rating_list.split(',')).empty?
+  else
+    rating_list.split(',').each do |rating|
+      ratings_from_page.include?(rating)
+    end
+  end
+end
+
+Then /I should see (all|none) of the movies/ do |allnone|
+  if allnone == "all" then
+    page.has_css?("table#movies tr", :count=>10)
+  else
+    page.has_css?("table#movies tr", :count=>0)
+  end
 end
